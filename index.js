@@ -2,6 +2,7 @@ const WebSocket = require('ws')
 const express = require('express')
 const cors = require('cors')
 const dotenv = require('dotenv')
+const { getEntities } = require('./getDevices')
 
 dotenv.config()
 
@@ -21,6 +22,17 @@ let messageIdCounter = 1
 const HA_WS_URL = 'ws://192.168.1.241:8123/api/websocket'
 
 const ws = new WebSocket(HA_WS_URL)
+
+app.get('/api/entities', async (req, res) => {
+  try {
+    const entities = await getEntities();
+    console.log(entities);
+    res.status(200).json({ success: true, entities });
+  } catch (error) {
+    console.error('Error fetching entities:', error.message);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+});
 
 ws.on('open', () => {
   console.log('Connected to Home Assistant WebSocket')
@@ -130,7 +142,7 @@ ws.on('message', data => {
         };
       
         ws.send(JSON.stringify(turnOnTvCommand));
-        res.status(200).json({ success: true, message: 'Turned on the TV' });
+        res.status(200).json({ success: true, message: 'Turned off the TV' });
       });
 
       app.post('/api/play-media', (req, res) => {
