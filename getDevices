@@ -1,0 +1,30 @@
+const axios = require('axios')
+
+const HA_ACCESS_TOKEN =
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiI3NjE1NDI0YmZjMWQ0NTEzYWJmYWQ0MjQxOWE5MmY4NSIsImlhdCI6MTcwMDgzMDM0MiwiZXhwIjoyMDE2MTkwMzQyfQ.nZKRxEr1FyqffQ10iUfObxXJtAMgLOrglLM7gGs_dvs'
+const HA_BASE_URL = 'http://homeassistant.local:8123'
+
+const getEntities = async () => {
+  try {
+    const response = await axios.get(`${HA_BASE_URL}/api/states`, {
+      headers: {
+        Authorization: `Bearer ${HA_ACCESS_TOKEN}`
+      }
+    })
+
+    // Filter entities based on their domain (light, media_player for TVs)
+    const lights = response.data.filter(entity =>
+      entity.entity_id.startsWith('light.')
+    )
+    const tvs = response.data.filter(entity =>
+      entity.entity_id.startsWith('media_player.')
+    )
+
+    console.log('Lights:', lights)
+    console.log('TVs:', tvs)
+  } catch (error) {
+    console.error('Error retrieving entities:', error.message)
+  }
+}
+
+getEntities()
